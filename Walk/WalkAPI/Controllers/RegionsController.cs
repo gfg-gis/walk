@@ -27,7 +27,7 @@ namespace WalkAPI.Controllers
 
 
         [HttpGet]
-       public async Task<IActionResult> GetAllRegions()
+       public async Task<IActionResult> GetAllRegionsAsync()
         {
             var regions = await regionRepository.GetAllAsync();
 
@@ -55,5 +55,86 @@ namespace WalkAPI.Controllers
             //});
 
         }
+
+        [HttpGet]
+        [Route("{id:guid}")] // qui dinh phai truyen Guid, truyen gia tri khac la bao loi
+        [ActionName("GetRegionAsync")]  // cai nay dat ten giong route name cua Laravel 
+        public async Task<IActionResult> GetRegionAsync(Guid id)
+        {
+            var region = await regionRepository.GetAsync(id);
+
+            if (region == null) // co the bang null khi xai FirstOrDefaultAsync
+            {
+                return NotFound();
+            }
+
+            var regionDTO = mapper.Map<Models.DTO.Region>(region);
+            return Ok(regionDTO);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddRegionAsync(Models.DTO.AddRegionRequest addRegionRequest)
+        {
+            var region = new Models.Domain.Region()
+            {
+                Name = addRegionRequest.Name,
+                Code = addRegionRequest.Code,
+                Area = addRegionRequest.Area,
+                Lat = addRegionRequest.Lat,
+                Long = addRegionRequest.Long,
+                Population = addRegionRequest.Population,
+            };
+
+            region = await regionRepository.AddRegionAsync(region);
+
+            var regionDTO = mapper.Map<Models.DTO.Region>(region);
+
+            return CreatedAtAction(nameof(GetRegionAsync), new { id = regionDTO.Id }, regionDTO);
+        }
+
+        [HttpDelete]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> DeleteRegionAsync(Guid id)
+        {
+            var region = await regionRepository.DeleteRegionAsync(id);
+
+            if (region == null)
+            {
+                return NotFound();
+            }
+
+            var regionDTO = mapper.Map<Models.DTO.Region>(region);
+            return Ok(regionDTO);
+
+        }
+
+        [HttpPut]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> UpdateRegionAsync([FromRoute] Guid id, [FromBody] Models.DTO.UpdateRegionRequest regionRequest)
+        {
+            var region = new Models.Domain.Region()
+            {
+                Name = regionRequest.Name,
+                Code = regionRequest.Code,
+                Area = regionRequest.Area,
+                Lat = regionRequest.Lat,
+                Long = regionRequest.Long,
+                Population = regionRequest.Population,
+            };
+
+            region = await regionRepository.UpdateRegionAsync(id, region);
+
+
+            if (region == null)
+            {
+                return NotFound();
+            }
+
+            var regionDTO = mapper.Map<Models.DTO.Region>(region);
+            return Ok(regionDTO);
+
+        }
+
+
     }
 }
