@@ -19,6 +19,7 @@ builder.Services.AddDbContext<WalkDbContext>(options =>
 
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
 builder.Services.AddScoped<IWalkRepository, WalkRepository>();
+builder.Services.AddScoped<IWalkDiffRepository, WalkDiffRepository>();
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
